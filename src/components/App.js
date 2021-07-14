@@ -1,26 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react"
 
-import Header from "./Header";
-import ToyForm from "./ToyForm";
-import ToyContainer from "./ToyContainer";
+import Header from "./Header"
+import ToyForm from "./ToyForm"
+import ToyContainer from "./ToyContainer"
 
 function App() {
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(false)
+  const [toys, setToys] = useState([])
+
+  useEffect(() => {
+    fetch("http://localhost:3001/toys")
+    .then((resp) => resp.json())
+    .then(setToys)
+  }, [])
 
   function handleClick() {
-    setShowForm((showForm) => !showForm);
+    setShowForm((showForm) => !showForm)
+  }
+
+  const handleAddToy = (newToy) => {
+    setToys([...toys, newToy])
+  }
+
+  const handleDeleteToy = (toyToDelete) => {
+    const updatedToys = toys.filter((toy) => toy.id !== toyToDelete.id)
+    setToys(updatedToys)
+  }
+
+  const handleUpdateToy = (updatedToy) => {
+    const updatedToys = toys.map((toy) =>
+    toy.id === updatedToy.id ? updatedToy : toy
+    )
+    setToys(updatedToys)
   }
 
   return (
     <>
       <Header />
-      {showForm ? <ToyForm /> : null}
+      {showForm ? <ToyForm  onAddToy={handleAddToy} /> : null}
       <div className="buttonContainer">
         <button onClick={handleClick}>Add a Toy</button>
       </div>
-      <ToyContainer />
+      <ToyContainer 
+          toys={toys}
+          onDeleteToy={handleDeleteToy}
+          onUpdateToy={handleUpdateToy}
+      />
     </>
-  );
+  )
 }
 
-export default App;
+export default App
